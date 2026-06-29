@@ -1,0 +1,138 @@
+# Socrates Interface Definition
+
+## Input
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `argument_text` | string | ✅ | 外部论点的原文（看空报告、第三方分析、市场观点） |
+| `source` | string | ⚠️ | 论点来源（媒体名称、分析师、URL） |
+| `context` | string | ❌ | 上下文信息（持仓标的、审查目的、背景说明） |
+| `thesis_path` | string | ❌ | 相关 thesis 文件路径（投资 lens 专属，用于交叉比对） |
+| `argument_slug` | string | ❌ | 论点标识符（用于输出文件命名，默认自动生成） |
+
+### Input Examples
+
+**投资场景（bear case 审查）**:
+```json
+{
+  "argument_text": "康方生物 HARMONi-6 仅中国患者，全球适用性存疑，FDA 不会批准",
+  "source": "Pharmaphorum 2026-06-24",
+  "context": "持仓 bear case 审查，标的 9926.HK",
+  "thesis_path": "docs/portfolio/thesis/9926.HK/thesis.md"
+}
+```
+
+**通用场景（第三方分析审查）**:
+```json
+{
+  "argument_text": "AI 芯片行业已进入下行周期，需求见顶",
+  "source": "Bloomberg 2026-06-20",
+  "context": "行业分析审查"
+}
+```
+
+## Output
+
+### Audit Report (Markdown)
+
+输出文件: `docs/socrates-audits/{argument_slug}-{date}.md`
+
+包含以下章节：
+
+1. **三维度审查结果**
+   - 事实核查（调用 bayes mode:fact_check）
+   - 对称性检查（对照组是否同样受限）
+   - 独立性检查（去掉这条，其他论点还成立吗）
+
+2. **综合评估**
+   - 质量评级：高/中/低
+   - 建议：保留/降级/排除
+   - 理由：一句话总结
+
+3. **与 thesis 交叉比对**（投资 lens 专属）
+   - 已覆盖：是/否
+   - 覆盖深度：充分/不足/未覆盖
+   - 行动建议：补充证据/更新 FC/无需行动
+
+4. **最终建议**
+   - 保留此论点作为决策参考？
+   - 需要进一步验证的维度
+
+### Intermediate Outputs
+
+每个步骤的输出可作为后续步骤的输入：
+
+| Step | Output Field | Description |
+|------|--------------|-------------|
+| fact_check | `fact_findings` | 事实核查结果（准确/部分准确/错误 + 证据） |
+| symmetry_check | `symmetry_findings` | 对称性检查结果（对照组 + 对称性 + 判定） |
+| independence_check | `independence_findings` | 独立性检查结果（前提依赖 + 独立性 + 链式风险） |
+| quality_rating | `quality_rating` | 综合评估（质量评级 + 建议 + 理由） |
+
+## Routing Logic
+
+### Route Check (Step 0)
+
+判断输入论点类型：
+
+| Type | Description | Action |
+|------|-------------|--------|
+| `EXTERNAL` | 外部论点（看空报告、第三方分析） | 继续 socrates 流程 |
+| `INTERNAL` | 自己的推理（我的分析、我的判断） | 提示路由到 feynman |
+| `CONCLUSION` | 自己的结论（需要验证的事实声明） | 提示路由到 bayes |
+
+### Fallback Handling
+
+| Step | Soft Fail Action | Fallback Value |
+|------|------------------|----------------|
+| fact_check | use_fallback | `fact_findings: "事实核查跳过（bayes 不可用）"` |
+| symmetry_check | use_fallback | `symmetry_findings: "对称性检查跳过"` |
+| independence_check | use_fallback | `independence_findings: "独立性检查跳过"` |
+| quality_rating | use_fallback | `quality_rating: "综合评估跳过"` |
+
+## Constraints
+
+- **边界保护**: 输入必须是外部论点，检测到内部推理/结论时提示路由
+- **bayes 依赖**: fact_check 步骤调用 bayes skill，需确保 bayes 可用
+- **输出路径**: 审查报告写入 `docs/socrates-audits/`，目录不存在时自动创建
+- **幂等性**: 同一论点多次审查会覆盖旧报告（按 `{argument_slug}-{date}` 命名）
+
+## Integration Points
+
+### W/M Cadence（投资场景）
+
+在 weekly-review 或 monthly-decision 中调用：
+
+```yaml
+# weekly-review 流程片段
+- id: adversarial_scan
+  skill: socrates
+  args:
+    argument_text: "{{ bear_case_report }}"
+    source: "bear case 搜索"
+    thesis_path: "{{ thesis_file }}"
+```
+
+### 太虚五转（可选前置）
+
+在 debono 之前调用，先审查批判质量，再找回价值：
+
+```yaml
+# taixu-pipeline 增强
+- id: socrates_audit
+  skill: socrates
+  args:
+    argument_text: "{{ feynman_findings }}"
+  depends_on: [feynman]
+  soft_depends_on: [feynman]
+  on_soft_fail: skip
+
+- id: debono
+  skill: debono
+  args:
+    dismissed_claims: "{{ hegel_dismissed }}"
+    audit_quality: "{{ steps.socrates_audit.output.quality_rating }}"
+  depends_on: [socrates_audit]
+  soft_depends_on: [socrates_audit]
+  on_soft_fail: skip
+```

@@ -1,0 +1,57 @@
+interface:
+  display_name: "Bayes 深度引擎"
+  display_name_en: "Bayes"
+  short_description: "预测→测量→惊讶循环，用外部数据击穿模型预测"
+  version: "4.0.0-alpha"
+  default_prompt: |
+    Use bayes to extract verifiable predictions from an investment thesis,
+    measure them against external data (API + dual-LLM adversarial reading),
+    and surface surprises that drive cognitive upgrades.
+
+input:
+  claim:
+    type: string
+    required: true
+    description: "概率命题或描述。例如：'康方生物三年三倍的概率是多少？'"
+  thesis_path:
+    type: string
+    required: false
+    description: "标的 thesis.md 路径（提取 FC 和监控信号）"
+
+output:
+  verdict:
+    type: string
+    enum: [SURPRISES_FOUND, NO_SURPRISE, NOT_APPLICABLE]
+    description: "是否发现惊讶"
+  report:
+    type: string
+    format: markdown
+    description: "深度引擎报告（惊讶清单 + 覆盖率分层 + 边界声明）"
+  predictions:
+    type: object
+    description: "预测清单（valid + rejected + premise_audits）"
+  b1:
+    type: object
+    description: "B1 硬验证结果"
+  b2:
+    type: array
+    description: "B2 软验证结果（双读对抗）"
+  coverage:
+    type: object
+    description: "覆盖率分层（hard/soft/uncovered + d7_warning）"
+
+execution:
+  runtime: workflow
+  script: scripts/workflow.js
+  context: inline
+  shell: bash
+
+compatibility:
+  canonical_format: "agent-skills"
+  adapter_targets:
+    - "claude"
+
+trust:
+  source_tier: "local"
+  remote_inline_execution: "forbid"
+  remote_metadata_policy: "allow-metadata-only"

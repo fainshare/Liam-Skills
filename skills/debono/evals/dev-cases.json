@@ -1,0 +1,74 @@
+{
+  "version": "1.0.0",
+  "created": "2026-06-12",
+  "skill": "debono",
+  "cases": [
+    {
+      "id": "dc-01",
+      "type": "positive",
+      "description": "单命题 — 技术方案被否决后的价值回溯",
+      "input": "我们决定不用 GraphQL，全面改用 REST。之前提议 GraphQL 的方案被否了。",
+      "expected_triggers": true,
+      "expected_output_sections": ["最强存活论证", "存活条件", "四维价值扫描"],
+      "expected_strategies": ["至少使用 2 种构建策略"],
+      "notes": "最常见的 happy path 场景"
+    },
+    {
+      "id": "dc-02",
+      "type": "positive",
+      "description": "批量命题 — 多个被否方案同时回溯",
+      "input": "以下三个方案都被否了：1) 引入微前端架构 2) 自建消息队列 3) 全量迁移到 TypeScript",
+      "expected_triggers": true,
+      "expected_output_sections": ["最强存活论证", "存活条件", "四维价值扫描"],
+      "expected_behavior": "逐命题输出，每个命题独立分析",
+      "notes": "验证批量处理能力"
+    },
+    {
+      "id": "dc-03",
+      "type": "negative",
+      "description": "无价值命题 — 应诚实输出无存活价值",
+      "input": "我们决定在生产环境用 COBOL 重写整个前端。",
+      "expected_triggers": true,
+      "expected_output": "未发现显著存活价值 或 5 种构建策略均未发现存活论证",
+      "expected_behavior": "不强行编造正面角度",
+      "notes": "验证反强行乐观机制"
+    },
+    {
+      "id": "dc-04",
+      "type": "positive",
+      "description": "hegel 报告输入 — S7 黄帽对冲场景",
+      "input": "hegel 收敛报告显示 8 个 findings 中有 6 个被 dismissed。被 dismissed 的 findings 包括：引入 DDD 战术模式、建立事件溯源、统一领域语言、引入 CQRS、实现防腐层、建设知识图谱。",
+      "expected_triggers": true,
+      "expected_output_sections": ["最强存活论证", "存活条件", "四维价值扫描"],
+      "expected_behavior": "从 hegel 报告中提取被 dismissed 的 findings 作为 proposition",
+      "notes": "验证 hegel→debono 触发协议"
+    },
+    {
+      "id": "dc-05",
+      "type": "negative",
+      "description": "非命题输入 — 应拒绝并路由到正确 skill",
+      "input": "帮我看看这段代码有没有问题：function calculateTotal(items) { return items.reduce((sum, item) => sum + item.price, 0); }",
+      "expected_triggers": true,
+      "expected_behavior": "回复 debono 处理的是命题/方案/决策，代码类输入请用 feynman 审查",
+      "notes": "验证非命题输入的边界处理"
+    },
+    {
+      "id": "dc-06",
+      "type": "negative",
+      "description": "纯情绪输入 — 应要求提供具体命题",
+      "input": "这个方案太烂了，我真的很不爽",
+      "expected_triggers": true,
+      "expected_behavior": "回复请提供具体命题，纯情绪表达无法做价值回溯",
+      "notes": "验证纯情绪输入的边界处理"
+    },
+    {
+      "id": "dc-07",
+      "type": "negative",
+      "description": "V1 不支持功能请求 — 应显式拒绝",
+      "input": "帮我用 debono 自动识别哪些方案被过度批判了",
+      "expected_triggers": true,
+      "expected_behavior": "回复沉默触发器计划在 V2 实现，V1 请显式传入被否定的命题",
+      "notes": "验证 V1 显式拒绝逻辑"
+    }
+  ]
+}

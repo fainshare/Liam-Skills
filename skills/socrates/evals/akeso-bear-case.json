@@ -1,0 +1,74 @@
+{
+  "name": "akeso-bear-case",
+  "description": "康方生物 bear case 审查 — 验证 socrates 三维度审查能否识别事实错误和论证技巧",
+  "type": "happy_path",
+  "input": {
+    "argument_text": "康方生物 HARMONi-6 试验仅纳入中国患者，90% 以上为男性，排除了 75 岁以上患者。这种人群构成与美国真实患者群体（中位年龄 70 岁）严重脱节，全球适用性存疑。FDA 不太可能基于这样的数据批准依沃西单抗。",
+    "source": "Pharmaphorum / Julie Brahmer (ASCO discussant)",
+    "context": "持仓 bear case 审查，标的 9926.HK 康方生物",
+    "thesis_path": "docs/portfolio/thesis/9926.HK/thesis.md"
+  },
+  "expected_output": {
+    "fact_check": {
+      "verdict": "部分准确",
+      "findings": [
+        {
+          "claim": "HARMONi-6 仅纳入中国患者",
+          "verdict": "准确",
+          "evidence": "HARMONi-6 确实是中国 III 期试验，由中国 55 家医院参与"
+        },
+        {
+          "claim": "90% 以上为男性",
+          "verdict": "准确",
+          "evidence": "HARMONi-6 入组患者 90%+ 为男性"
+        },
+        {
+          "claim": "排除了 75 岁以上患者",
+          "verdict": "准确",
+          "evidence": "HARMONi-6 入组标准排除了 75 岁以上患者"
+        },
+        {
+          "claim": "FDA 不太可能基于这样的数据批准",
+          "verdict": "误导性",
+          "evidence": "HARMONi（全球 III 期）包含 165 例非中国患者（38%），BLA 已获 FDA 受理（PDUFA 2026-11-14）。FDA 审批依据是 HARMONi 全球试验数据，而非 HARMONi-6。论点将两个试验混为一谈，暗示 FDA 仅依据中国数据做决定"
+        }
+      ]
+    },
+    "symmetry_check": {
+      "verdict": "论证技巧",
+      "findings": [
+        {
+          "issue": "人群构成批评",
+          "symmetry": "对称",
+          "explanation": "Brahmer 批评 HARMONi-6 的人群特征（90%男性、排除75+岁），但 K 药（帕博利珠单抗）作为对照组使用的是相同的入组标准。如果人群构成是问题，K 药同样受限。这不是依沃西的独立弱点，而是对对照组同样适用的试验设计选择。"
+        }
+      ]
+    },
+    "independence_check": {
+      "verdict": "链式脆弱",
+      "findings": [
+        {
+          "chain": "仅中国数据 → FDA 不会批准 → 全球商业化失败",
+          "weakness": "链式论证，第一环（仅中国数据）已被 HARMONi 全球试验证伪。整个推理链因此不成立。"
+        }
+      ]
+    },
+    "quality_rating": {
+      "rating": "低",
+      "recommendation": "排除",
+      "rationale": "事实部分准确但关键推论误导（混淆 HARMONi-6 和 HARMONi 试验），对称性检查发现论证技巧（对照组同样受限），链式论证在第一环就被否定。"
+    },
+    "thesis_cross_reference": {
+      "covered": true,
+      "coverage_depth": "充分",
+      "action": "无需行动。thesis §3.2 已讨论 HARMONi 全球试验数据。可补充 Brahmer 批评的对称性分析作为防御论据。"
+    }
+  },
+  "check_points": [
+    "fact_check 应识别 HARMONi-6 和 HARMONi 是两个不同试验",
+    "fact_check 应发现 BLA 已被 FDA 受理",
+    "symmetry_check 应发现 K 药对照组使用相同入组标准",
+    "independence_check 应识别链式论证的脆弱性",
+    "quality_rating 应为'低'，建议'排除'"
+  ]
+}

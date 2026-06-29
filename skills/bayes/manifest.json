@@ -1,0 +1,68 @@
+{
+  "name": "bayes",
+  "version": "4.1.0-alpha",
+  "kind": "composed",
+  "description": "深度引擎——从命题提取可验证预测，用外部数据（API + 双 LLM 对抗）测量方向，以惊讶驱动认知增量",
+  "entry": "SKILL.md",
+  "execution": "scripts/workflow.js",
+  "files": [
+    "SKILL.md",
+    "DESIGN.md",
+    "scripts/workflow.js",
+    "scripts/workflow-v3.js",
+    "scripts/spike-v4.js",
+    "agents/interface.yaml",
+    "references/theoretical-foundations.md",
+    "references/depth-engine-principles.md",
+    "references/bias-checklist.md",
+    "templates/report-template.md"
+  ],
+  "input": {
+    "claim": { "type": "string", "required": true, "description": "概率命题或描述" },
+    "thesis_path": { "type": "string", "required": false, "description": "标的 thesis.md 路径（提取 FC 和监控信号）" }
+  },
+  "output": {
+    "verdict": "SURPRISES_FOUND | NO_SURPRISE | NOT_APPLICABLE",
+    "report": "string (markdown)",
+    "predictions": "object (valid + rejected + premise_audits)",
+    "b1": "object (hard_api verification results)",
+    "b1c": "object (hard_code verification results)",
+    "b2": "array (soft_search verification results)",
+    "b2c": "array (soft_read verification results)",
+    "coverage": "object (hard/hard_code/soft/soft_read/uncovered rates + d7_warning)"
+  },
+  "composition": {
+    "engine": "predict-measure-surprise",
+    "phases": ["Formalize", "HardVerify", "SoftVerify", "Surprise", "Report"],
+    "hard_constraints": {
+      "D2_distinguishability": "if_thesis_correct.direction ≠ if_thesis_wrong.direction",
+      "D3_source_isolation": "source selection by code, not LLM",
+      "D7_coverage_warning": "uncovered > 50% → warning"
+    },
+    "dual_read": {
+      "agent_a": "Claude (workflow native)",
+      "agent_b": "Qwen3.7-Max (Idealab API via idealab_client.py)",
+      "fallback": "L1 same-model dual-prompt"
+    }
+  },
+  "dependencies": [
+    "scripts/shared/idealab_client.py",
+    "scripts/shared/opend_price_provider.py"
+  ],
+  "theoretical_basis": [
+    "Popper: Conjectures and Refutations (1963)",
+    "Lakatos: The Methodology of Scientific Research Programmes (1978)",
+    "Tetlock: Superforecasting (2015)",
+    "Yang: Intuition Correction Methodology (2012)",
+    "depth-engine-principles.md v1.2"
+  ],
+  "origin": "v3.4 三视角诊断 + depth-engine-principles v1.2 + spike 验证",
+  "created": "2026-06-05",
+  "updated": "2026-06-07",
+  "changelog": {
+    "3.3.0": "集成 Dual-Framework",
+    "3.4.0": "重命名 popper→bayes",
+    "4.0.0-alpha": "深度引擎重写：预测→测量→惊讶循环，替代对抗审查循环；双读对抗（Claude+Qwen）；D2/D3/D7 代码级硬约束",
+    "4.1.0-alpha": "代码场景增强：新增 structure/behavior/intent 维度 + hard_code/soft_read 验证通道；B1c 代码硬验证（shell 命令）；B2c 代码软验证（双模型代码语义解读）；提取 computeSoftAgreement 共享逻辑"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "description": "Popper skill 测试用例集。覆盖 FULL/LITE 路径 + 四种不确定性类型。",
+  "cases": [
+    {
+      "id": "full-mixed-kangfang",
+      "path": "FULL",
+      "expected_type": "mixed",
+      "args": {
+        "claim": "康方生物(9926.HK) 2026-06 至 2029-06 实现股价三倍（从当前价到 ≥3x）的概率",
+        "source_file": "docs/portfolio/current_holdings/9926.HK/thesis.md",
+        "max_rounds": 2,
+        "force_full": true
+      },
+      "verify": {
+        "uncertainty_type": "mixed",
+        "mode": "FULL",
+        "min_reviewers_per_round": 8,
+        "expected_dims_include": ["prior-bounds", "info-gap", "update-quality", "irreducibility"]
+      }
+    },
+    {
+      "id": "lite-deterministic-roe",
+      "path": "LITE",
+      "expected_type": "deterministic",
+      "args": {
+        "claim": "胜宏科技毛利率维持>35%时，ROE必然>18%",
+        "max_rounds": 2
+      },
+      "verify": {
+        "uncertainty_type": "deterministic",
+        "mode": "LITE",
+        "min_reviewers_per_round": 3,
+        "expected_dims_include": ["causal-chain"]
+      }
+    },
+    {
+      "id": "full-epistemic-pipeline",
+      "path": "FULL",
+      "expected_type": "epistemic",
+      "args": {
+        "claim": "亚盛医药核心管线 APG-2575 在 2027 年前获得 FDA 批准的概率",
+        "max_rounds": 2
+      },
+      "verify": {
+        "uncertainty_type": "epistemic",
+        "mode": "FULL",
+        "min_reviewers_per_round": 8,
+        "expected_dims_include": ["prior-bounds", "info-gap", "update-quality"]
+      }
+    },
+    {
+      "id": "lite-ontological-market",
+      "path": "LITE",
+      "expected_type": "ontological",
+      "args": {
+        "claim": "恒生科技指数下月收益率 > 5%",
+        "max_rounds": 2
+      },
+      "verify": {
+        "uncertainty_type": "ontological",
+        "mode": "LITE",
+        "min_reviewers_per_round": 3,
+        "effective_min_band": 8,
+        "expected_dims_include": ["ergodicity"]
+      }
+    },
+    {
+      "id": "gate-phase1-only",
+      "path": "FULL",
+      "expected_type": "mixed",
+      "args": {
+        "claim": "拼多多 2027 年营收增速维持 >20% 的概率",
+        "phase_1_only": true
+      },
+      "verify": {
+        "verdict": "PENDING_CONFIRM",
+        "rounds": 0,
+        "has_formalized": true
+      }
+    }
+  ]
+}
