@@ -567,7 +567,15 @@ hard_cap = lens 级参数（从 lens frontmatter 加载）
 
 ### 11.4 报告结构
 
+报告文件必须包含 YAML frontmatter，供 pipeline checkpoint 提取信号：
+
 ```markdown
+---
+signals:
+  terminal_status: "converged | converged_with_blind_spots | converged_with_counterbalance | truncated | truncated_with_blind_spots | aborted"
+  system_type: "deterministic | non_deterministic | mixed"
+---
+
 # 收敛分析报告：{target}
 
 ## 收敛摘要

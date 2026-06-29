@@ -329,6 +329,11 @@ find <path> -name "*.py" -o -name "*.js" -o -name "*.ts" | head -50
 #### 格式
 
 ```markdown
+---
+signals:
+  veto_count: 0
+---
+
 ## Feynman 认知纪律审查报告
 
 **审查模式**：{diff | module | deps}
